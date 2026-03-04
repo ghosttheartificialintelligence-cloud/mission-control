@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        /* Top Bar */
+        .topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: #1a1a2e;
+            border-bottom: 1px solid #333;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 100;
+        }
+        
+        .topbar-logo {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #7dd3fc;
+            margin-right: 30px;
+        }
+        
+        .topbar-title {
+            color: #a0a0b0;
+            font-size: 0.9rem;
+        }
+        
+        .start-chat {
+            margin-left: auto;
+            background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
+            color: #1a1a2e;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* Office Container */
+        .office-container {
+            padding-top: 50px;
+            min-height: 100vh;
+            background: #1a1a2e;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 180px;
+            background: #151525;
+            padding: 20px 15px;
+            border-right: 1px solid #2a2a4e;
+            flex-shrink: 0;
+        }
+        
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-title {
+            color: #7dd3fc;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .sidebar-link {
+            display: block;
+            color: #a0a0b0;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+            cursor: default;
+        }
+        
+        .sidebar-link:hover {
+            background: #252540;
+            color: #fff;
+        }
+        
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .dropdown-btn {
+            display: block;
+            color: #a0a0b0;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            transition: all 0.2s;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .dropdown-btn:hover {
+            background: #252540;
+            color: #fff;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background: var(--bg-secondary);
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            z-index: 1000;
+            border: 1px solid var(--border);
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        .dropdown-content .sidebar-link {
+            padding: 10px 16px;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        /* The Office Floor */
+        .office {
+            min-height: 400px;
+            padding: 20px;
+            position: relative;
+        }
+        
+        /* Checkered Floor */
+        .floor {
+            display: grid;
+            grid-template-columns: repeat(16, 1fr);
+            grid-template-rows: repeat(12, 40px);
+            gap: 2px;
+            background: #0d0d15;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 3px solid #2a2a4e;
+        }
+        
+        .floor-tile {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .floor-tile.dark { background: #1a1a24; }
+        .floor-tile.light { background: #22222e; }
+        
+        /* Desks */
+        .desk {
+            position: absolute;
+            width: 80px;
+            height: 45px;
+            background: #3a3a4a;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .monitor {
+            width: 30px;
+            height: 20px;
+            background: #3b82f6;
+            border-radius: 3px;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        
+        /* Desk Positions */
+        .desk-1 { top: 80px; right: 120px; }
+        .desk-2 { top: 80px; left: 120px; }
+        .desk-3 { top: 200px; right: 180px; }
+        .desk-4 { top: 200px; left: 180px; }
+        .desk-5 { top: 320px; right: 120px; }
+        .desk-6 { top: 320px; left: 120px; }
+        
+        /* Conference Table */
+        .conference-table {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 100px;
+            background: #2a2a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .conference-chair {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background: #3a3a4a;
+            border-radius: 50%;
+        }
+        
+        .chair-1 { top: -20px; left: 30px; }
+        .chair-2 { top: -20px; right: 30px; }
+        .chair-3 { bottom: -20px; left: 30px; }
+        .chair-4 { bottom: -20px; right: 30px; }
+        
+        /* Water Cooler */
+        .water-cooler {
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 70px;
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        
+        .water-cooler::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+        }
+        
+        /* Plants */
+        .plant {
+            position: absolute;
+            width: 30px;
+            height: 40px;
+        }
+        
+        .plant-pot {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 15px;
+            background: #92400e;
+            border-radius: 3px;
+        }
+        
+        .plant-leaves {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 25px;
+            height: 30px;
+            background: #22c55e;
+            border-radius: 50% 50% 0 0;
+        }
+        
+        .plant-1 { bottom: 40px; left: 40px; }
+        .plant-2 { bottom: 40px; right: 40px; }
+        
+        /* Characters/Avatars */
+        .character {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+        
+        .character:hover {
+            transform: scale(1.1);
+        }
+        
+        .character-icon {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        
+        .char-ghost {
+            background: linear-gradient(135deg, #a855f7, #c084fc);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+        }
+        
+        .char-codex {
+            background: linear-gradient(135deg, #f97316, #fb923c);
+        }
+        
+        .char-doc {
+            background: linear-gradient(135deg, #22c55e, #4ade80);
+        }
+        
+        .char-ollama {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+        }
+        
+        .char-bryan {
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+        }
+        
+        .name-tag {
+            position: absolute;
+            bottom: -18px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            white-space: nowrap;
+            color: #fff;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+        }
+        
+        .status-indicator.online { background: #4ade80; }
+        .status-indicator.idle { background: #f59e0b; }
+        .status-indicator.collaborating { 
+            background: #3b82f6;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        /* Collaboration mode - move to roundtable */
+        body.collaborating .char-ghost,
+        body.collaborating .char-codex {
+            transition: all 0.5s ease;
+        }
+        
+        body.collaborating .char-ghost {
+            bottom: 160px !important;
+            right: auto !important;
+            left: 45% !important;
+            transform: translateX(-50%) !important;
+        }
+        
+        body.collaborating .char-codex {
+            bottom: 160px !important;
+            right: auto !important;
+            left: 55% !important;
+            transform: translateX(-50%) !important;
+        }
+        
+        /* Collaboration banner */
+        .collab-banner {
+            display: none;
+            position: fixed;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 0 0 10px 10px;
+            font-weight: 600;
+            z-index: 200;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        body.collaborating .collab-banner {
+            display: block;
+        }
+        
+        /* Mission Banner */
+        .mission-banner {
+            background: linear-gradient(90deg, #1a1a2e 0%, #2a1a3e 50%, #1a1a2e 100%);
+            border-bottom: 1px solid #4a3a6e;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .mission-label {
+            color: #a371f7;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .mission-text {
+            color: #e0e0e0;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+        
+        /* Info Panel */
+        .info-panel {
+            padding: 30px 20px;
+        }
+        
+        .panel-title {
+            font-size: 1.2rem;
+            color: #7dd3fc;
+            margin-bottom: 20px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-box {
+            background: #252540;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #808090;
+            margin-top: 5px;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .link-btn {
+            background: #252540;
+            color: #a0a0b0;
+            border: 1px solid #3a3a5a;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .link-btn:hover {
+            background: #2a2a4e;
+            color: #fff;
+            border-color: #7dd3fc;
+        }
+        
+        .link-btn.primary {
+            background: linear-gradient(135deg, #7dd3fc 0%, #38bdf8 100%);
+            color: #1a1a2e;
+            font-weight: 600;
+            border: none;
+        }
+        
+        /* Team Grid */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .agent-card {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .agent-avatar {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .agent-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #fff;
+        }
+        
+        .agent-role {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        
+        .agent-status {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .agent-status.online {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        
+        .agent-status.idle {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+        }
+        
+        /* Task Board */
+        .task-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .task-column {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 12px;
+        }
+        
+        .column-header {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #7dd3fc;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .task-card {
+            background: #252540;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #7dd3fc;
+        }
+        
+        .task-card.done {
+            border-left-color: #4ade80;
+            opacity: 0.7;
+        }
+        
+        .task-title {
+            font-size: 0.85rem;
+            color: #e0e0e0;
+            margin-bottom: 6px;
+        }
+        
+        .task-assignee {
+            font-size: 0.7rem;
+            color: #888;
+        }
+        
+        /* Calendar */
+        .calendar-grid {
+            display: grid;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .calendar-item {
+            display: flex;
+            align-items: center;
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 12px 15px;
+            border-left: 3px solid #7dd3fc;
+        }
+        
+        .cal-time {
+            font-size: 0.75rem;
+            color: #888;
+            min-width: 100px;
+        }
+        
+        .cal-event {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #e0e0e0;
+        }
+        
+        .cal-status {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        
+        .cal-status.daily {
+            background: rgba(163, 113, 247, 0.2);
+            color: #a371f7;
+        }
+        
+        .cal-status.running {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #606080;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .floor {
+                grid-template-rows: repeat(12, 35px);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* TODO List */
+        .todo-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .todo-item {
+            background: #252540;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .todo-check {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="topbar-logo">🎯 Mission Control</div>
+        <div class="topbar-title">Build Council</div>
+        <button class="start-chat">+ Start Chat</button>
+    </div>
+    
+    <!-- Mission Statement Banner -->
+    <div class="mission-banner">
+        <span class="mission-label">MISSION:</span>
+        <span class="mission-text">Build an autonomous organization of AI agents that do work and produce value 24/7</span>
+    </div>
+    
+    <!-- Collaboration Banner -->
+    <div class="collab-banner">👻💻 Collaborating on a task...</div>
+    
+    <!-- Office Container -->
+    <div class="office-container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Quick Links</div>
+                <span class="sidebar-link">🏠 Dashboard</span>
+                <span class="sidebar-link">💳 Credits</span>
+                <span class="sidebar-link">📧 Email</span>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Agents</div>
+                <span class="sidebar-link">💻 Codex</span>
+                <span class="sidebar-link">📄 DocSmith</span>
+                <span class="sidebar-link">🧠 Ollama</span>
+                <span class="sidebar-link">🧠 Memory</span>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Mission Control</div>
+                <span class="sidebar-link">📋 Task Board</span>
+                <span class="sidebar-link">📅 Calendar</span>
+                <span class="sidebar-link">📁 Projects</span>
+                <span class="sidebar-link">💾 Memories</span>
+                <span class="sidebar-link">📄 Docs</span>
+                <span class="sidebar-link">👥 Team</span>
+                <span class="sidebar-link">🏢 Office</span>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">System</div>
+                <span class="sidebar-link">⚙️ Settings</span>
+                <span class="sidebar-link">📊 Analytics</span>
+            </div>
+            <div class="sidebar-section">
+                <div class="dropdown">
+                    <button class="dropdown-btn">📁 Projects ▼</button>
+                    <div class="dropdown-content">
+                        <span class="sidebar-link" onclick="window.open('http://localhost:8889', '_blank')">📱 App Dev Center</span>
+                        <span class="sidebar-link" onclick="window.open('http://localhost:8890', '_blank')">📊 Echonode</span>
+                        <span class="sidebar-link" onclick="window.open('https://rentmyai.netlify.app', '_blank')">🛒 rentmyai</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="office">
+            <!-- Checkered Floor -->
+            <div class="floor">
+                <!-- Grid tiles will be generated by JS -->
+            </div>
+            
+            <!-- Water Cooler -->
+            <div class="water-cooler"></div>
+            
+            <!-- Plants -->
+            <div class="plant plant-1">
+                <div class="plant-leaves"></div>
+                <div class="plant-pot"></div>
+            </div>
+            <div class="plant plant-2">
+                <div class="plant-leaves"></div>
+                <div class="plant-pot"></div>
+            </div>
+            
+            <!-- Desks with Monitors -->
+            <div class="desk desk-1">
+                <div class="monitor"></div>
+            </div>
+            <div class="desk desk-2">
+                <div class="monitor"></div>
+            </div>
+            <div class="desk desk-3">
+                <div class="monitor"></div>
+            </div>
+            <div class="desk desk-4">
+                <div class="monitor"></div>
+            </div>
+            <div class="desk desk-5">
+                <div class="monitor"></div>
+            </div>
+            <div class="desk desk-6">
+                <div class="monitor"></div>
+            </div>
+            
+            <!-- Conference Table -->
+            <div class="conference-table">
+                <div class="conference-chair chair-1"></div>
+                <div class="conference-chair chair-2"></div>
+                <div class="conference-chair chair-3"></div>
+                <div class="conference-chair chair-4"></div>
+            </div>
+            
+            <!-- Characters -->
+            <div class="character char-ghost" style="top: 75px; right: 125px;">
+                👻
+                <div class="name-tag">Ghost</div>
+                <div class="status-indicator online"></div>
+            </div>
+            
+            <div class="character char-codex" style="top: 195px; right: 185px;">
+                💻
+                <div class="name-tag">Codex</div>
+                <div class="status-indicator idle"></div>
+            </div>
+            
+            <div class="character char-ollama" style="top: 255px; right: 185px;">
+                🧠
+                <div class="name-tag">Ollama</div>
+                <div class="status-indicator idle"></div>
+            </div>
+            
+            <div class="character char-doc" style="top: 315px; right: 125px;">
+                📄
+                <div class="name-tag">DocSmith</div>
+                <div class="status-indicator idle"></div>
+            </div>
+            
+            <div class="character char-bryan" style="bottom: 115px; left: 50%; transform: translateX(-50%);">
+                👤
+                <div class="name-tag">Bryan</div>
+                <div class="status-indicator online"></div>
+            </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="info-panel">
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Active Agents</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">Tasks This Week</div>
+                </div>
+                <div class="stat-box" onclick="window.open('http://localhost:8889', '_blank')" style="cursor:pointer;">
+                    <div class="stat-value">📱</div>
+                    <div class="stat-label">App Factory</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" style="color: #4ade80;">●</div>
+                    <div class="stat-label">System Online</div>
+                </div>
+            </div>
+            
+            <div class="panel-title">⚡ Quick Actions</div>
+            <div class="quick-links">
+                <a href="/" class="link-btn primary">+ Start Chat</a>
+                <a href="/payments.html" class="link-btn">💳 Add Credits</a>
+                <a href="#" class="link-btn">📧 Check Email</a>
+                <a href="#" class="link-btn">🧠 View Memory</a>
+                <a href="#" class="link-btn">📊 Analytics</a>
+                <a href="http://localhost:8889" target="_blank" class="link-btn">📱 App Factory</a>
+            </div>
+        </div>
+        
+        <!-- Team Section -->
+        <div class="info-panel">
+            <div class="panel-title">👥 Team</div>
+            <div class="team-grid">
+                <div class="agent-card">
+                    <div class="agent-avatar">👻</div>
+                    <div class="agent-name">Ghost</div>
+                    <div class="agent-role">Coordinator</div>
+                    <div class="agent-status online">Online</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-avatar">💻</div>
+                    <div class="agent-name">Codex</div>
+                    <div class="agent-role">Coding</div>
+                    <div class="agent-status online">Online</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-avatar">📄</div>
+                    <div class="agent-name">DocSmith</div>
+                    <div class="agent-role">Documents</div>
+                    <div class="agent-status idle">Idle</div>
+                </div>
+                <div class="agent-card">
+                    <div class="agent-avatar">🧠</div>
+                    <div class="agent-name">Ollama</div>
+                    <div class="agent-role">Local AI</div>
+                    <div class="agent-status online">Online</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Task Board Preview -->
+        <div class="info-panel" style="padding-top: 0;">
+            <div class="panel-title">📋 Task Board</div>
+            <div class="task-columns">
+                <div class="task-column">
+                    <div class="column-header">📥 Backlog</div>
+                    <div class="task-card">
+                        <div class="task-title">Build AI Fitness App</div>
+                        <div class="task-assignee">👻 Ghost</div>
+                    </div>
+                    <div class="task-card">
+                        <div class="task-title">Research Perplexity Max</div>
+                        <div class="task-assignee">👻 Ghost</div>
+                    </div>
+                </div>
+                <div class="task-column">
+                    <div class="column-header">🔄 In Progress</div>
+                    <div class="task-card">
+                        <div class="task-title">Mission Control Updates</div>
+                        <div class="task-assignee">👻 Ghost</div>
+                    </div>
+                </div>
+                <div class="task-column">
+                    <div class="column-header">✅ Done</div>
+                    <div class="task-card done">
+                        <div class="task-title">Deploy Echonode</div>
+                        <div class="task-assignee">👻 Ghost</div>
+                    </div>
+                    <div class="task-card done">
+                        <div class="task-title">Set up n8n</div>
+                        <div class="task-assignee">👻 Ghost</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            AI Build Council
+        </div>
+        
+        <!-- TODO Section -->
+        <!-- Calendar Section -->
+        <div class="info-panel">
+            <div class="panel-title">📅 Scheduled Tasks & Cron Jobs</div>
+            <div class="calendar-grid">
+                <div class="calendar-item">
+                    <div class="cal-time">12:00 AM</div>
+                    <div class="cal-event">Update agent memories</div>
+                    <div class="cal-status daily">Daily</div>
+                </div>
+                <div class="calendar-item">
+                    <div class="cal-time">6:00 AM</div>
+                    <div class="cal-event">Morning Platform Brief</div>
+                    <div class="cal-status daily">Daily</div>
+                </div>
+                <div class="calendar-item">
+                    <div class="cal-time">Every 15 min</div>
+                    <div class="cal-event">n8n: Fetch BTC Price</div>
+                    <div class="cal-status running">Active</div>
+                </div>
+                <div class="calendar-item">
+                    <div class="cal-time">Every hour</div>
+                    <div class="cal-event">Echonode data refresh</div>
+                    <div class="cal-status running">Active</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel" style="padding-top: 0;">
+            <div class="panel-title">📋 Active Todos</div>
+            <div class="todo-list">
+                <div class="todo-item"><span class="todo-check">✅</span> Set up n8n workflow automation</div>
+                <div class="todo-item"><span class="todo-check">✅</span> Deploy Echonode to Netlify</div>
+                <div class="todo-item"><span class="todo-check">⬜</span> Build AI Fitness Form Corrector app</div>
+                <div class="todo-item"><span class="todo-check">⬜</span> Add Perplexity research to workflow</div>
+                <div class="todo-item"><span class="todo-check">⬜</span> Connect rentmyai.ai domain</div>
+                <div class="todo-item"><span class="todo-check">⬜</span> Build Team screen (agents overview)</div>
+            </div>
+        </div>
+        </div>
+    </div>
+    
+    <script>
+        // Generate checkered floor
+        const floor = document.querySelector('.floor');
+        for (let row = 0; row < 12; row++) {
+            for (let col = 0; col < 16; col++) {
+                const tile = document.createElement('div');
+                tile.className = 'floor-tile ' + ((row + col) % 2 === 0 ? 'dark' : 'light');
+                floor.appendChild(tile);
+            }
+        }
+        
+        // Poll for collaboration status
+        async function checkCollaboration() {
+            try {
+                const response = await fetch('/status.json?t=' + Date.now());
+                const status = await response.json();
+                
+                if (status.collaborating) {
+                    document.body.classList.add('collaborating');
+                    document.querySelector('.collab-banner').textContent = status.message || '👻💻 Collaborating...';
+                    
+                    // Update status indicators
+                    document.querySelector('.char-ghost .status-indicator').className = 'status-indicator collaborating';
+                    document.querySelector('.char-codex .status-indicator').className = 'status-indicator collaborating';
+                    document.querySelector('.char-ollama .status-indicator').className = 'status-indicator collaborating';
+                } else {
+                    document.body.classList.remove('collaborating');
+                }
+            } catch (e) {
+                // Status file doesn't exist yet, that's ok
+            }
+        }
+        
+        // Check collaboration status every 2 seconds
+        setInterval(checkCollaboration, 2000);
+        checkCollaboration(); // Initial check
+        
+        // Refresh balance from API
+        async function refreshBalance() {
+            try {
+                const resp = await fetch('/api/balance');
+                const data = await resp.json();
+                document.getElementById('balance-amount').textContent = data.amount.toFixed(2);
+            } catch (e) {
+                console.log('Could not refresh balance');
+            }
+        }
+        
+        // Auto-refresh balance every 30 seconds
+        setInterval(refreshBalance, 30000);
+        refreshBalance();
+        
+        // Make sidebar links open in new tabs
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.style.cursor = 'pointer';
+            link.addEventListener('click', function(e) {
+                const text = this.textContent.trim();
+                if (text.includes('App Factory')) {
+                    window.open('http://localhost:8889', '_blank');
+                } else if (text.includes('Echonode')) {
+                    window.open('http://localhost:8890', '_blank');
+                } else if (text.includes('rentmyai')) {
+                    window.open('https://rentmyai.netlify.app', '_blank');
+                } else if (text.includes('Task Board')) {
+                    alert('Task Board coming soon!');
+                } else if (text.includes('Calendar')) {
+                    alert('Calendar coming soon!');
+                } else if (text.includes('Team')) {
+                    alert('Team section - scroll down to see agents!');
+                }
+            });
+        });
+        
+        // Start Chat button
+        document.querySelector('.start-chat')?.addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

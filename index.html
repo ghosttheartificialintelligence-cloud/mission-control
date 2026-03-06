@@ -908,7 +908,7 @@
                 </div>
             </div>
             
-            <div class="panel-title">⚡ Quick Actions</div>
+            <div id="quick-actions" class="panel-title">⚡ Quick Actions</div>
             <div class="quick-links">
                 <a href="/" class="link-btn primary">+ Start Chat</a>
                 <a href="/payments.html" class="link-btn">💳 Add Credits</a>
@@ -922,13 +922,13 @@
         
         <!-- Echonode Section -->
         <div class="info-panel">
-            <div class="panel-title">📊 Echonode Analytics</div>
+            <div id="echonode" class="panel-title">📊 Echonode Analytics</div>
             <iframe src="https://echonode-analytics.netlify.app" style="width:100%; height:500px; border:none; border-radius:8px; background:#0a0a0f;" title="Echonode"></iframe>
         </div>
         
         <!-- Team Section -->
         <div class="info-panel">
-            <div class="panel-title">👥 Team</div>
+            <div id="team" class="panel-title">👥 Team</div>
             <div class="team-grid">
                 <div class="agent-card">
                     <div class="agent-avatar">👻</div>
@@ -959,7 +959,7 @@
         
         <!-- Multi-Agent Teams Section -->
         <div class="info-panel">
-            <div class="panel-title">🔬 Multi-Agent Teams</div>
+            <div id="multi-agent" class="panel-title">🔬 Multi-Agent Teams</div>
             <p style="color: #888; margin-bottom: 15px;">Our agent architecture combines specialized agents for optimal results.</p>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
                 <div class="agent-card">
@@ -990,7 +990,7 @@
         
         <!-- Skills Marketplace Section -->
         <div class="info-panel">
-            <div class="panel-title">🛠️ Skills Marketplace</div>
+            <div id="skills" class="panel-title">🛠️ Skills Marketplace</div>
             <p style="color: #888; margin-bottom: 15px;">Premium skills ready to rent or buy.</p>
             
             <div style="margin-bottom: 20px;">
@@ -1056,7 +1056,7 @@
         
         <!-- Task Board Preview -->
         <div class="info-panel" style="padding-top: 0;">
-            <div class="panel-title">📋 Task Board</div>
+            <div id="tasks" class="panel-title">📋 Task Board</div>
             <div class="task-columns">
                 <div class="task-column">
                     <div class="column-header">📥 Backlog</div>
@@ -1097,7 +1097,7 @@
         <!-- TODO Section -->
         <!-- Calendar Section -->
         <div class="info-panel">
-            <div class="panel-title">📅 Scheduled Tasks & Cron Jobs</div>
+            <div id="scheduled" class="panel-title">📅 Scheduled Tasks & Cron Jobs</div>
             <div class="calendar-grid">
                 <div class="calendar-item">
                     <div class="cal-time">12:00 AM</div>
@@ -1200,11 +1200,19 @@
                 } else if (text.includes('rentmyai')) {
                     window.open('https://rentmyai.netlify.app', '_blank');
                 } else if (text.includes('Task Board')) {
-                    alert('Task Board coming soon!');
+                    document.getElementById('tasks')?.scrollIntoView({behavior: 'smooth'});
                 } else if (text.includes('Calendar')) {
-                    alert('Calendar coming soon!');
+                    document.getElementById('scheduled')?.scrollIntoView({behavior: 'smooth'});
                 } else if (text.includes('Team')) {
-                    alert('Team section - scroll down to see agents!');
+                    document.getElementById('team')?.scrollIntoView({behavior: 'smooth'});
+                } else if (text.includes('Quick Actions')) {
+                    document.getElementById('quick-actions')?.scrollIntoView({behavior: 'smooth'});
+                } else if (text.includes('Skills')) {
+                    document.getElementById('skills')?.scrollIntoView({behavior: 'smooth'});
+                } else if (text.includes('Multi-Agent')) {
+                    document.getElementById('multi-agent')?.scrollIntoView({behavior: 'smooth'});
+                } else if (text.includes('Echonode')) {
+                    document.getElementById('echonode')?.scrollIntoView({behavior: 'smooth'});
                 }
             });
         });
